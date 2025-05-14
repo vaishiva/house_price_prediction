@@ -1,0 +1,44 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error,root_mean_squared_error
+
+# Load the dataset
+df = pd.read_csv('house_prices.csv')
+
+# One-hot encode the categorical variable 'Location'
+df_encoded = pd.get_dummies(df, columns=['Location'], drop_first=True)
+
+# Define features (X) and target (y)
+X = df_encoded.drop('Price', axis=1)
+y = df_encoded['Price']
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize and train the Random Forest model
+model = RandomForestRegressor(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Predict the prices on the test set
+y_pred = model.predict(X_test)
+
+# Evaluate the model's performance
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+
+print(f"Mean Absolute Error: {mae}")
+print(f"Mean Squared Error: {mse}")
+
+# Optional: Predict prices for new data
+new_data = pd.DataFrame({
+    'Square_Feet': [2500],
+    'Bedrooms': [4],
+    'Bathrooms': [3],
+    'Age': [10],
+    'Location_Urban': [1],
+})
+
+# Use the model to predict the price for the new data
+predicted_price = model.predict(new_data)
+print(f"Predicted House Price: ${predicted_price[0]:,.2f}")
